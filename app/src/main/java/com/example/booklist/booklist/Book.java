@@ -13,9 +13,14 @@ public class Book  implements Serializable {
     private String openLibraryId;
     private String author;
     private String title;
+    private String id;
 
     public String getOpenLibraryId() {
         return openLibraryId;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -28,27 +33,28 @@ public class Book  implements Serializable {
 
     // Get medium sized book cover from covers API
     public String getCoverUrl() {
-        return "http://covers.openlibrary.org/b/olid/" + openLibraryId + "-M.jpg?default=false";
+        return "https://image.tmdb.org/t/p/w500/" + openLibraryId;
     }
 
     // Get large sized book cover from covers API
     public String getLargeCoverUrl() {
-        return "http://covers.openlibrary.org/b/olid/" + openLibraryId + "-L.jpg?default=false";
+        return "https://image.tmdb.org/t/p/w500/" + openLibraryId ;
     }
     // Returns a Book given the expected JSON
 
     public static Book fromJson(JSONObject jsonObject) {
         Book book = new Book();
         try {
+            book.id = jsonObject.getString("id");
             // Deserialize json into object fields
             // Check if a cover edition is available
-            if (jsonObject.has("cover_edition_key"))  {
-                book.openLibraryId = jsonObject.getString("cover_edition_key");
-            } else if(jsonObject.has("edition_key")) {
-                final JSONArray ids = jsonObject.getJSONArray("edition_key");
+            if (jsonObject.has("poster_path"))  {
+                book.openLibraryId = jsonObject.getString("poster_path");
+            } else if(jsonObject.has("backdrop_path")) {
+                final JSONArray ids = jsonObject.getJSONArray("backdrop_path");
                 book.openLibraryId = ids.getString(0);
             }
-            book.title = jsonObject.has("title_suggest") ? jsonObject.getString("title_suggest") : "";
+            book.title = jsonObject.has("original_title") ? jsonObject.getString("original_title") : "";
             book.author = getAuthor(jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -61,7 +67,7 @@ public class Book  implements Serializable {
     // Return comma separated author list when there is more than one author
     private static String getAuthor(final JSONObject jsonObject) {
         try {
-            final JSONArray authors = jsonObject.getJSONArray("author_name");
+            final JSONArray authors = jsonObject.getJSONArray("release_date");
             int numAuthors = authors.length();
             final String[] authorStrings = new String[numAuthors];
             for (int i = 0; i < numAuthors; ++i) {

@@ -40,6 +40,7 @@ public class BookListActivity extends AppCompatActivity {
         lvBooks.setAdapter(bookAdapter);
         progress = (ProgressBar) findViewById(R.id.progress);
         setupBookSelectedListener();
+        this.setTitle("Movie Searh");
       //  fetchBooks();
     }
     private void fetchBooks(String query) {
@@ -53,7 +54,7 @@ public class BookListActivity extends AppCompatActivity {
                     JSONArray docs = null;
                     if(response != null) {
                         // Get the docs json array
-                        docs = response.getJSONArray("docs");
+                        docs = response.getJSONArray("results");
                         // Parse json array into array of model objects
                         final ArrayList<Book> books = (Book.fromJson(docs));
                         // Remove all books from the adapter

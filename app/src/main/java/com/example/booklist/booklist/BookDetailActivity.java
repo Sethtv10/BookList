@@ -35,9 +35,11 @@ public class BookDetailActivity extends AppCompatActivity {
     private TextView tvPublisher;
     private TextView tvPageCount;
     private BookClient client;
+    private   String publisher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_detail);
         // Fetch views
@@ -60,22 +62,18 @@ public class BookDetailActivity extends AppCompatActivity {
         tvAuthor.setText(book.getAuthor());
         // fetch extra book data from books API
         client = new BookClient();
-        client.getExtraBookDetails(book.getOpenLibraryId(), new JsonHttpResponseHandler() {
+        client.getExtraBookDetails(book.getId(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    if (response.has("publishers")) {
+                    if (response.has("overview")) {
                         // display comma separated list of publishers
-                        final JSONArray publisher = response.getJSONArray("publishers");
-                        final int numPublishers = publisher.length();
-                        final String[] publishers = new String[numPublishers];
-                        for (int i = 0; i < numPublishers; ++i) {
-                            publishers[i] = publisher.getString(i);
-                        }
-                        tvPublisher.setText(TextUtils.join(", ", publishers));
+                        publisher = response.getString("overview");
+
+                        tvPublisher.setText( publisher);
                     }
-                    if (response.has("number_of_pages")) {
-                        tvPageCount.setText(Integer.toString(response.getInt("number_of_pages")) + " pages");
+                    if (response.has("release_date")) {
+                        tvPageCount.setText(response.getString("release_date") );
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -137,7 +135,7 @@ public class BookDetailActivity extends AppCompatActivity {
         Uri bmpUri = null;
         try {
             File file =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                    "share_image_" + System.currentTimeMillis() + ".png");
+                    "poster_path" + System.currentTimeMillis() + ".png");
             file.getParentFile().mkdirs();
             FileOutputStream out = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
